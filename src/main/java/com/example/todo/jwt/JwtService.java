@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -39,8 +40,12 @@ public class JwtService {
   }
 
   public boolean isValid(UserDetails user, String token) {
-    return user.getUsername().equals(getUsername(token)) 
+    try {
+      return user.getUsername().equals(getUsername(token)) 
       && !getClaims(token).getExpiration().before(new Date());
+    } catch (JwtException e) {
+      throw new JwtException("Invalid JWT token.");
+    }
   }
 
   private Key getKey() {
