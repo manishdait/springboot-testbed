@@ -1,0 +1,26 @@
+<configuration>
+  <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>logs/todo-app-log.txt</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>logs/todo-app-log-%d{yyyy-MM-dd HH:mm}.%i.txt</fileNamePattern>
+      <maxFileSize>10MB</maxFileSize>    
+      <maxHistory>10</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="ConsoleAppender" />
+    <appender-ref ref="FileAppender" />
+  </root>
+</configuration>

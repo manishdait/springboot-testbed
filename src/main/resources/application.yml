@@ -1,0 +1,26 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: todo
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/todo-db
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+    hibernate:
+      ddl-auto: create-drop
+
+    show-sql: true
+
+jwt:
+  secret-key: 815F1298534CA2989B84C1C2F48D4609E7A05811E0700653661466A6
+  expiration-seconds: 120
