@@ -55,18 +55,16 @@ public class AuthService {
 
   @Transactional
   public AuthResponseDto login(final AuthRequestDto request) {
-    Authentication authentication;
     try {
-      authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+      authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
       log.info("User authenticated for, username=`{}`, password=`{}`.", request.email(), request.password());
     } catch (BadCredentialsException e) {
       log.error("Invalid credentials for login, username=`{}`, password=`{}`.", request.email(), request.password());
       throw new BadCredentialsException("Invalid username or password");
     }
 
-    User user = (User) authentication.getPrincipal();
-    String authToken = jwtService.generateToken(user.getEmail());
-    return new AuthResponseDto(user.getUsername(), authToken);
+    String authToken = jwtService.generateToken(request.email());
+    return new AuthResponseDto(request.email(), authToken);
   }
 
   public Optional<User> getCurrentUser() {
