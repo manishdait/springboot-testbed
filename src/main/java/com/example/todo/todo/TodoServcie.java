@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.todo.auth.AuthService;
 import com.example.todo.exception.TodoException;
+import com.example.todo.shared.UuidGenerator;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 
@@ -23,6 +24,9 @@ public class TodoServcie {
   private final UserRepository userRepository;
 
   private final AuthService authService;
+  private final UuidGenerator uuidGenerator;
+
+  private final TodoDtoMapper todoDtoMapper;
 
   @Transactional
   public List<TodoResponseDto> getTodos() {
@@ -33,7 +37,7 @@ public class TodoServcie {
     }
 
     log.info("Fetching todos for email=`{}`", user.get().getEmail());
-    return todoRepository.findByUser(user.get()).stream().map(todo -> todoToDto(todo)).toList();
+    return todoRepository.findByUser(user.get()).stream().map(todo -> todoDtoMapper.todoToDto(todo)).toList();
   }
 
   @Transactional
@@ -42,7 +46,7 @@ public class TodoServcie {
     User user = userRepository.findById(id).get();
 
     Todo todo = Todo.builder()
-      .uuid(UUID.randomUUID().toString())
+      .uuid(uuidGenerator.randomUUID())
       .title(request.title())
       .status(Status.PENDING)
       .user(user)
@@ -50,14 +54,14 @@ public class TodoServcie {
 
     log.info("Added todo with id=`{}`", todo.getUuid());
 
-    return todoToDto(todoRepository.save(todo));
+    return todoDtoMapper.todoToDto(todoRepository.save(todo));
   }
 
   @Transactional
   public TodoResponseDto getTodo(String id) {
     Todo todo = todoRepository.findByUuid(id).orElseThrow(() -> new TodoException("Todo Not Found", String.format("Todo with uuid=`%s` does not exist", id)));
     log.info("Fetch todo with id=`{}`", id);
-    return todoToDto(todo);
+    return todoDtoMapper.todoToDto(todo);
   }
 
   @Transactional
@@ -65,7 +69,7 @@ public class TodoServcie {
     Todo todo = todoRepository.findByUuid(id).orElseThrow(() -> new TodoException("Todo Not Found", String.format("Todo with uuid=`%s` does not exist", id)));
     todo.setStatus(status);
     log.info("Change status for todo with id=`{}`", id);
-    return todoToDto(todoRepository.save(todo));
+    return todoDtoMapper.todoToDto(todoRepository.save(todo));
   }
 
   @Transactional
@@ -73,7 +77,7 @@ public class TodoServcie {
     Todo todo = todoRepository.findByUuid(id).orElseThrow(() -> new TodoException("Todo Not Found", String.format("Todo with uuid=`%s` does not exist", id)));
     todo.setTitle(request.title());
     log.info("Updated title for todo with id=`{}`", id);
-    return todoToDto(todoRepository.save(todo));
+    return todoDtoMapper.todoToDto(todoRepository.save(todo));
   }
 
   @Transactional
@@ -81,9 +85,5 @@ public class TodoServcie {
     Todo todo = todoRepository.findByUuid(id).orElseThrow(() -> new TodoException("Todo Not Found", String.format("Todo with uuid=`%s` does not exist", id)));
     log.info("Deleting todo with id=`{}`", id);
     todoRepository.delete(todo);
-  }
-
-  private TodoResponseDto todoToDto(Todo todo) {
-    return new TodoResponseDto(todo.getUuid(), todo.getTitle(), todo.getStatus(), todo.getCreatedAt(), todo.getUpdatedAt());
   }
 }
