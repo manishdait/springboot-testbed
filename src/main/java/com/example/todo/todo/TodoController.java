@@ -34,7 +34,7 @@ public class TodoController {
 
   @PostMapping()
   public ResponseEntity<TodoResponseDto> addTodo(@RequestBody TodoRequestDto request) {
-    return ResponseEntity.status(HttpStatus.OK).body(todoServcie.addTodo(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(todoServcie.addTodo(request));
   }
 
   @PatchMapping("/{id}/status/{status}")
